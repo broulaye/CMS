@@ -54,11 +54,13 @@ The following **required** functionality is completed:
 
 The following advanced user stories are optional:
 
-- [ ]  Bonus: On "public/staff/territories/show.php", display the name of the state.
+- [x]  Bonus: On "public/staff/territories/show.php", display the name of the state.
 
-- [ ]  Bonus: Validate the uniqueness of `users.username`.
+- [x]  Bonus: Validate the uniqueness of `users.username`.
 
-- [ ]  Bonus: Add a page for "public/staff/users/delete.php".
+- [x]  Bonus: Validate the uniqueness of `users.email`.
+
+- [x]  Bonus: Add a page for "public/staff/users/delete.php".
 
 - [ ]  Bonus: Add a Staff CMS for countries.
 
@@ -69,7 +71,7 @@ The following advanced user stories are optional:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://i.imgur.com/moSB8EQ.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
