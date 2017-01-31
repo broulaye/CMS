@@ -24,7 +24,7 @@ if(is_post_request()) {
   } else {
     $errors = $result;
   }
-
+}
 ?>
 <?php $page_title = 'Staff: Edit Territory ' . $territory['name']; ?>
 <?php include(SHARED_PATH . '/header.php'); ?>

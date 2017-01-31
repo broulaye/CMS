@@ -66,8 +66,6 @@
 
     if (is_blank($state['code'])) {
       $errors[] = "State code cannot be blank.";
-    } elseif (!is_valid_number($state['code'])) {
-      $errors[] = "State code must be a number.";
     } elseif (!has_length($state['code'], array('min' => 2, 'max' => 255))) {
       $errors[] = "State code must be between 2 and 255 characters.";
     }
@@ -89,7 +87,7 @@
     $sql .= "(name, code) ";
     $sql .= "VALUES (";
     $sql .= "'" . $state['name'] . "',";
-    $sql .= "'" . $state['code'] . "',";
+    $sql .= "'" . $state['code'] . "'";
     $sql .= ");";
 
     // For INSERT statments, $result is just true/false
@@ -167,9 +165,11 @@
   }
 
   //My custom validation
-  function is_a_number($value) {
-    return is_numeric($value);
+  function is_positive($value) {
+    return $value > 0;
   }
+
+
 
   function validate_territory($territory, $errors=array()) {
     if (is_blank($territory['name'])) {
@@ -180,14 +180,16 @@
 
     if (is_blank($territory['state_id'])) {
       $errors[] = "State ID cannot be blank.";
-    } elseif (!is_numeric($territory['state_id'])) {
+    } elseif (!is_valid_number($territory['state_id'])) {
       $errors[] = "State ID must be a number.";
     }
 
     if (is_blank($territory['position'])) {
       $errors[] = "Position cannot be blank.";
-    } elseif (!is_a_number($territory['position'])) {
+    } elseif (!is_valid_number($territory['position'])) {
       $errors[] = "Position must be a number.";
+    } else if(!is_positive($territory['position'])) {
+      $errors[] = "Position must be a positive number.";
     }
 
     return $errors;
@@ -208,7 +210,7 @@
     $sql .= "VALUES (";
     $sql .= "'" . $territory['name'] . "',";
     $sql .= "'" . $territory['state_id'] . "',";
-    $sql .= "'" . $territory['position'] . "',";
+    $sql .= "'" . $territory['position'] . "'";
     $sql .= ");";
 
     // For INSERT statments, $result is just true/false
@@ -304,7 +306,7 @@
       $errors[] = "First name cannot be blank.";
     } elseif (!has_length($salesperson['first_name'], array('min' => 2, 'max' => 255))) {
       $errors[] = "First name must be between 2 and 255 characters.";
-    } elseif (is_valid_name($salesperson['first_name'])) {
+    } elseif (!is_valid_name($salesperson['first_name'])) {
       $errors[] = "First name is not valid.";
     }
 
@@ -312,7 +314,7 @@
       $errors[] = "Last name cannot be blank.";
     } elseif (!has_length($salesperson['last_name'], array('min' => 2, 'max' => 255))) {
       $errors[] = "Last name must be between 2 and 255 characters.";
-    } elseif (is_valid_name($salesperson['last_name'])) {
+    } elseif (!is_valid_name($salesperson['last_name'])) {
       $errors[] = "Last name is not valid.";
     }
 
@@ -349,7 +351,7 @@
     $sql .= "'" . $salesperson['first_name'] . "',";
     $sql .= "'" . $salesperson['last_name'] . "',";
     $sql .= "'" . $salesperson['phone'] . "',";
-    $sql .= "'" . $salesperson['email'] . "',";
+    $sql .= "'" . $salesperson['email'] . "'";
     $sql .= ");";
     // For INSERT statments, $result is just true/false
     $result = db_query($db, $sql);
@@ -434,6 +436,22 @@
     return preg_match('/\A[A-Za-z0-9\_]+\Z/', $value);
   }
 
+  //My custom validation
+  function is_not_unique_username($value) {
+    global $db;
+    $query = "SELECT username FROM users WHERE username='$value' limit 1";
+    $val = db_num_rows(db_query($db, $query));
+    return $val;
+  }
+
+  //My custom validation
+  function is_not_unique_email($value) {
+    global $db;
+    $query = "SELECT email FROM users WHERE email='$value' limit 1";
+    $val = db_num_rows(db_query($db, $query));
+    return $val;
+  }
+
   function validate_user($user, $errors=array()) {
     if (is_blank($user['first_name'])) {
       $errors[] = "First name cannot be blank.";
@@ -451,6 +469,8 @@
       $errors[] = "Email cannot be blank.";
     } elseif (!has_valid_email_format($user['email'])) {
       $errors[] = "Email must be a valid format.";
+    } elseif (is_not_unique_email($user['email'])) {
+      $errors[] = "This email already exist.";
     }
 
     if (is_blank($user['username'])) {
@@ -459,6 +479,8 @@
       $errors[] = "Username must be less than 255 characters.";
     } elseif(!is_valid_username($user['username'])) {
       $errors[] = "Username must contain only following values: characters, numbers, and symbol: _.";
+    } else if(is_not_unique_username($user['username'])) {
+      $errors[] = "This username already exist.";
     }
     return $errors;
   }
@@ -481,7 +503,7 @@
     $sql .= "'" . $user['last_name'] . "',";
     $sql .= "'" . $user['email'] . "',";
     $sql .= "'" . $user['username'] . "',";
-    $sql .= "'" . $created_at . "',";
+    $sql .= "'" . $created_at . "'";
     $sql .= ");";
     // For INSERT statments, $result is just true/false
     $result = db_query($db, $sql);
@@ -514,6 +536,22 @@
     $sql .= "WHERE id='" . $user['id'] . "' ";
     $sql .= "LIMIT 1;";
     // For update_user statments, $result is just true/false
+    $result = db_query($db, $sql);
+    if($result) {
+      return true;
+    } else {
+      // The SQL UPDATE statement failed.
+      // Just show the error, not the form
+      echo db_error($db);
+      db_close($db);
+      exit;
+    }
+  }
+
+  function delete_user($user) {
+    global $db;
+    $id = $user['id'];
+    $sql = "DELETE FROM users WHERE id = $id" ;
     $result = db_query($db, $sql);
     if($result) {
       return true;
