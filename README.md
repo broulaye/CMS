@@ -62,7 +62,7 @@ The following advanced user stories are optional:
 
 - [x]  Bonus: Add a page for "public/staff/users/delete.php".
 
-- [ ]  Bonus: Add a Staff CMS for countries.
+- [x]  Bonus: Add a Staff CMS for countries.
 
 - [ ]  Advanced: Nest the CMS for states inside of the Staff CMS for countries
 
